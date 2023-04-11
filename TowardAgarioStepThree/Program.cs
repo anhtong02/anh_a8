@@ -11,16 +11,13 @@ namespace TowardAgarioStepThree
         public static void Main(string[] args)
         {
             networking = new Networking(new CustomFileLogger("Debug"), onConnect, onDisconnect, onMessage, '\n');
-            try
-            {
+            
                 networking.Connect("localhost", 11000);
-                networking.AwaitMessagesAsync();
-            }
-            catch (Exception e)
-            {
+                networking.AwaitMessagesAsync();            
                 Console.ReadLine();
-                onMessage(networking, e.Message);
-            }
+              
+
+            
         }
 
         private static void onConnect(Networking channel)
@@ -35,13 +32,23 @@ namespace TowardAgarioStepThree
 
         private static void onMessage(Networking channel, string message)
         {
-            if (message.StartsWith("{Command Food}"))
+
+            if (message.StartsWith(AgarioModels.Protocols.CMD_Food))
             {
-                Console.WriteLine(message);
-                string output = message.Substring(14);
+                string output = message.Substring(AgarioModels.Protocols.CMD_Food.Length);
                 List<Food> listOfFood = new List<Food>();
                 List<Food> foods = JsonSerializer.Deserialize<List<Food>>(output)
                     ?? throw new Exception("Error of Json");
+
+                foreach (var food in foods)
+                {
+                    Console.WriteLine($"Food: {food.ARGBColor}");
+                }
+            }
+
+            if (message is null)
+            {
+                Console.WriteLine("null");
             }
         }
     }
